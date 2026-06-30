@@ -1,0 +1,4 @@
+{
+  "sessionId": {{GetSessionId()},
+  "self": {{JsonObject(CurrentObject(),"SYSID,Project")}
+}

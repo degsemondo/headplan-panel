@@ -1,0 +1,23 @@
+/* HEAD PLAN — AdaptiveWork custom panel  ::  Style field */
+
+.hp-wrap        { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #1c2b39; max-width: 1100px; }
+.hp-title       { color: #2a5db0; font-size: 12px; font-weight: bold; margin: 4px 0 12px 0; }
+.hp-section     { border: 1px solid #c7ced6; border-radius: 3px; margin: 0 0 14px 0; padding: 10px 14px 14px; }
+.hp-section > legend { color: #7a8896; font-size: 12px; font-weight: bold; padding: 0 6px; }
+
+/* label/value grids */
+.hp-grid        { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.hp-field       { display: flex; flex-direction: column; min-width: 150px; flex: 1 1 150px; }
+.hp-field.wide  { flex: 1 1 320px; }
+.hp-label       { color: #44546a; font-size: 12px; margin-bottom: 3px; }
+.hp-value       { border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 5px 7px; min-height: 16px; }
+
+/* schedule tables */
+.hp-table       { width: 100%; border-collapse: collapse; }
+.hp-table th    { text-align: left; color: #1c2b39; font-size: 12px; font-weight: bold; padding: 4px 8px; vertical-align: top; }
+.hp-table td    { padding: 4px 8px; }
+.hp-table .hp-rowlabel { color: #1c2b39; font-weight: bold; white-space: nowrap; }
+.hp-cell        { display: block; border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 5px 7px; min-width: 70px; min-height: 16px; }
+
+.hp-notes       { width: 100%; min-height: 60px; border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 6px 8px; white-space: pre-wrap; }
+.hp-todo        { color: #b00020; }   /* highlights any ___placeholder left unreplaced */

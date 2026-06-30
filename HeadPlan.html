@@ -1,0 +1,145 @@
+<!--
+  HEAD PLAN — AdaptiveWork custom panel (Work Items)  ::  HTML field
+  STATIC markup only — no macros here. The Script reads the Data (JSON) field
+  via window.API.Context.getData() and fills:
+    - [data-f="ApiName"]   -> project field value (refs rendered as .Name)
+    - .hp-date[data-code]  -> WorkItem DueDate looked up by External ID
+  Fields with no API name yet carry data-todo and render faint.
+-->
+<div class="hp-wrap">
+
+  <div class="hp-title">Head Plan</div>
+
+  <!-- ============ PRODUCT INFORMATION ============ -->
+  <fieldset class="hp-section">
+    <legend>Product Information</legend>
+    <div class="hp-grid">
+      <div class="hp-field"><span class="hp-label">Product</span><span class="hp-value" data-f="C_ProductGESE"></span></div>
+      <div class="hp-field"><span class="hp-label">Country</span><span class="hp-value" data-f="Country"></span></div>
+      <div class="hp-field"><span class="hp-label">Installation Country</span><span class="hp-value" data-todo="InstallationCountry"></span></div>
+      <div class="hp-field"><span class="hp-label">Category</span><span class="hp-value" data-f="C_BaiumCategory"></span></div>
+    </div>
+    <div class="hp-grid" style="margin-top:10px;">
+      <div class="hp-field"><span class="hp-label">Order NO</span><span class="hp-value" data-f="C_OrderNumber"></span></div>
+      <div class="hp-field"><span class="hp-label">Item NO. (First Level)</span><span class="hp-value" data-todo="ItemNoFirstLevel"></span></div>
+      <div class="hp-field"><span class="hp-label">Chamber Item NO</span><span class="hp-value" data-todo="ChamberItemNo"></span></div>
+      <div class="hp-field"><span class="hp-label">RDD</span><span class="hp-value" data-todo="RDD"></span></div>
+      <div class="hp-field wide"><span class="hp-label">End Customer</span><span class="hp-value" data-f="C_Customer"></span></div>
+    </div>
+  </fieldset>
+
+  <!-- ============ PROJECT TEAM ============ -->
+  <fieldset class="hp-section">
+    <legend>Project Team</legend>
+    <div class="hp-grid">
+      <div class="hp-field"><span class="hp-label">Project Manager</span><span class="hp-value" data-f="C_ProjectManager"></span></div>
+      <div class="hp-field"><span class="hp-label">Assembly Team</span><span class="hp-value" data-todo="AssemblyTeam"></span></div>
+      <div class="hp-field"><span class="hp-label">P-number</span><span class="hp-value" data-todo="PNumber"></span></div>
+      <div class="hp-field wide"><span class="hp-label">Project Manager Email</span><span class="hp-value" data-f="C_ProjectManager.Email"></span></div>
+    </div>
+    <div class="hp-grid" style="margin-top:10px;">
+      <div class="hp-field"><span class="hp-label">Process Engineer</span><span class="hp-value" data-f="C_ProcessEngineer"></span></div>
+      <div class="hp-field"><span class="hp-label">Electrical Engineer</span><span class="hp-value" data-f="C_ElectricalEngineer"></span></div>
+      <div class="hp-field"><span class="hp-label">Controls Engineers</span><span class="hp-value" data-f="C_ControlEngineer"></span></div>
+      <div class="hp-field"><span class="hp-label">Mech Engineer</span><span class="hp-value" data-todo="MechEngineer"></span></div>
+    </div>
+  </fieldset>
+
+  <!-- ============ DESIGN & PRE PRODUCTION SCHEDULE ============ -->
+  <!-- .hp-date cells are filled by the Script: External ID = <prefix><code>, then read the
+       date field named in data-datefield (default DueDate). data-code is the activity code.
+       Codes known so far: PV Design=1365, Mech Assembly=0420, Electrical Assembly=1840. -->
+  <fieldset class="hp-section">
+    <legend>Design &amp; Pre Production Schedule</legend>
+    <table class="hp-table">
+      <thead>
+        <tr><th style="width:140px;">Dates</th><th>PV Design</th><th>Process</th><th>Electrical</th><th>Program</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hp-rowlabel">Planned finishing date</td>
+          <td><span class="hp-cell hp-date" data-code="1365">…</span></td>
+          <td><span class="hp-cell hp-date" data-code=""></span></td>
+          <td><span class="hp-cell hp-date" data-code=""></span></td>
+          <td><span class="hp-cell hp-date" data-code=""></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <!-- ============ MANUFACTURING SCHEDULE - CHAMBER ============ -->
+  <fieldset class="hp-section">
+    <legend>Manufacturing Schedule - Chamber</legend>
+    <table class="hp-table">
+      <thead>
+        <tr><th style="width:140px;">Dates</th><th>Detail Man.</th><th>Welding</th><th>Grinding</th><th>Hydro Test</th><th>Blasting or El.pol</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hp-rowlabel">Starting date</td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <!-- ============ ASSEMBLY ============ -->
+  <fieldset class="hp-section">
+    <legend>Assembly</legend>
+    <table class="hp-table">
+      <thead>
+        <tr><th style="width:140px;">Dates</th><th>Mech Assembly</th><th>Electrical Assembly</th><th>Testing</th><th>PreQ</th><th>F.A.T</th><th>Unit Ready Date</th><th>Confirmed Delivery Date</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hp-rowlabel">Starting date</td>
+          <td><span class="hp-cell hp-date" data-code="0420" data-datefield="StartDate">…</span></td>
+          <td><span class="hp-cell hp-date" data-code="1840" data-datefield="StartDate">…</span></td>
+          <td><span class="hp-cell hp-date" data-code="" data-datefield="StartDate"></span></td>
+          <td><span class="hp-cell hp-date" data-code="1890" data-datefield="StartDate">…</span></td>
+          <td><span class="hp-cell hp-date" data-code="0250" data-datefield="StartDate">…</span></td>
+          <td><span class="hp-cell hp-date" data-code="2055" data-datefield="StartDate">…</span></td>
+          <td><span class="hp-cell hp-date" data-code="0630" data-datefield="StartDate">…</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <!-- ============ NOTES ============ -->
+  <fieldset class="hp-section">
+    <legend>Notes</legend>
+    <div class="hp-label">General comments</div>
+    <div class="hp-notes" data-todo="GeneralComments"></div>
+  </fieldset>
+
+  <!-- ============ FAT CHANGE REASON ============ -->
+  <fieldset class="hp-section">
+    <legend>FAT change reason</legend>
+    <div class="hp-grid">
+      <div class="hp-field wide"><span class="hp-label">FAT &auml;ndrad p&aring; kunds beg&auml;ran</span><span class="hp-value" data-todo="FAT_CustomerRequest"></span></div>
+      <div class="hp-field wide"><span class="hp-label">FAT &auml;ndrad av egen orsak</span><span class="hp-value" data-todo="FAT_OwnReason"></span></div>
+    </div>
+  </fieldset>
+
+  <!-- ============ DEBUG (delete this whole fieldset before go-live) ============ -->
+  <fieldset class="hp-section" id="hp-debug" style="border-color:#b00020;">
+    <legend style="color:#b00020;">&#128027; Debug &mdash; remove before go-live</legend>
+    <div class="hp-grid">
+      <div class="hp-field wide">
+        <span class="hp-label">External ID to test (pre-filled with the computed PV Design value)</span>
+        <input id="hp-dbg-extid" class="hp-value" type="text" />
+      </div>
+      <div class="hp-field">
+        <span class="hp-label">&nbsp;</span>
+        <button type="button" id="hp-dbg-run" style="padding:5px 10px; cursor:pointer;">Run query</button>
+      </div>
+    </div>
+    <div class="hp-label" style="margin-top:8px;">Log (also written to browser console as [HeadPlan] …)</div>
+    <pre id="hp-dbg-log" style="background:#0f1722; color:#cfe3ff; font-size:11px; padding:8px; border-radius:3px; max-height:240px; overflow:auto; white-space:pre-wrap; margin:0;"></pre>
+  </fieldset>
+
+</div>
