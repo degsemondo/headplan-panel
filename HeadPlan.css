@@ -2,6 +2,11 @@
 
 .hp-wrap { font-family: Arial, Helvetica, sans-serif; color:#1c2b39; max-width:760px; background:#fff; border:1px solid #e3e8ef; border-radius:12px; padding:20px 24px; }
 
+/* toolbar / export button */
+.hp-toolbar     { text-align:right; margin:0 0 6px; }
+.hp-btn         { font-size:12px; padding:6px 12px; border:1px solid #c7ced6; border-radius:6px; background:#f5f7fa; color:#1c2b39; cursor:pointer; }
+.hp-btn:hover   { background:#e9eef5; }
+
 /* header */
 .hp-head        { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .hp-eyebrow     { font-size:12px; color:#8a97a6; letter-spacing:.04em; margin:0 0 4px; }
@@ -50,3 +55,9 @@
 .hp-debug       { margin-top:18px; border:1px solid #b00020; border-radius:8px; padding:12px 14px; }
 .hp-debug legend{ color:#b00020; font-size:12px; font-weight:bold; padding:0 6px; }
 .hp-dbg-log     { background:#0f1722; color:#cfe3ff; font-size:11px; padding:8px; border-radius:3px; max-height:240px; overflow:auto; white-space:pre-wrap; margin:8px 0 0; }
+
+/* print: drop the toolbar + debug, let the card fill the page (fallback path) */
+@media print {
+  .hp-toolbar, #hp-debug { display:none !important; }
+  .hp-wrap { border:none; max-width:none; }
+}

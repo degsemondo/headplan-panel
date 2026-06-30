@@ -189,6 +189,36 @@ function buildTimeline() {
   svg.innerHTML = s;
 }
 
+/* ---------- export to PDF (native print of a panel-only window) ---------- */
+/* pull just this panel's own rules so the print window is styled without host chrome */
+function collectCss() {
+  var out = '';
+  for (var i = 0; i < document.styleSheets.length; i++) {
+    var rules; try { rules = document.styleSheets[i].cssRules; } catch (e) { rules = null; }
+    if (!rules) continue;
+    for (var j = 0; j < rules.length; j++) { var t = rules[j].cssText || ''; if (t.indexOf('hp-') >= 0) out += t + '\n'; }
+  }
+  return out;
+}
+function exportPdf() {
+  var src = document.querySelector('.hp-wrap'); if (!src) return;
+  var clone = src.cloneNode(true);                                  /* captures current rendered state, incl. the SVG timeline */
+  var d = clone.querySelector('#hp-debug'); if (d) d.parentNode.removeChild(d);
+  var t = clone.querySelector('.hp-toolbar'); if (t) t.parentNode.removeChild(t);
+  var w; try { w = window.open('', '_blank'); } catch (e) { w = null; }
+  if (w) {
+    w.document.open();
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Head Plan</title><style>' +
+      collectCss() + 'body{margin:24px;background:#fff;}.hp-wrap{border:none;max-width:none;}</style></head><body>' +
+      clone.outerHTML + '</body></html>');
+    w.document.close(); w.focus();
+    setTimeout(function () { try { w.print(); } catch (e) {} }, 400);
+  } else {
+    window.print();                                                 /* pop-up blocked -> in-place print; @media print hides debug/toolbar */
+  }
+}
+function wireExport() { var b = document.getElementById('hp-export'); if (b) b.addEventListener('click', exportPdf); }
+
 /* ---------- 3. debug box wiring ---------- */
 function wireDebug(ctx) {
   var input = document.getElementById('hp-dbg-extid');
@@ -223,6 +253,7 @@ function render(ctx, project) {
   dbg('SYSID', getPath(project, 'SYSID') || '(blank)');
   populateProject(ctx);
   loadAllDates(ctx).then(function () { buildTimeline(); });
+  wireExport();
   wireDebug(ctx);
 }
 function loadProject(ctx, projectId) {
