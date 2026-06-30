@@ -1,23 +1,52 @@
-/* HEAD PLAN — AdaptiveWork custom panel  ::  Style field */
+/* HEAD PLAN — AdaptiveWork custom panel  ::  Style field (overview redesign) */
 
-.hp-wrap        { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #1c2b39; max-width: 1100px; }
-.hp-title       { color: #2a5db0; font-size: 12px; font-weight: bold; margin: 4px 0 12px 0; }
-.hp-section     { border: 1px solid #c7ced6; border-radius: 3px; margin: 0 0 14px 0; padding: 10px 14px 14px; }
-.hp-section > legend { color: #7a8896; font-size: 12px; font-weight: bold; padding: 0 6px; }
+.hp-wrap { font-family: Arial, Helvetica, sans-serif; color:#1c2b39; max-width:760px; background:#fff; border:1px solid #e3e8ef; border-radius:12px; padding:20px 24px; }
 
-/* label/value grids */
-.hp-grid        { display: flex; flex-wrap: wrap; gap: 10px 22px; }
-.hp-field       { display: flex; flex-direction: column; min-width: 150px; flex: 1 1 150px; }
-.hp-field.wide  { flex: 1 1 320px; }
-.hp-label       { color: #44546a; font-size: 12px; margin-bottom: 3px; }
-.hp-value       { border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 5px 7px; min-height: 16px; }
+/* header */
+.hp-head        { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.hp-eyebrow     { font-size:12px; color:#8a97a6; letter-spacing:.04em; margin:0 0 4px; }
+.hp-product     { font-size:20px; font-weight:bold; margin:0; }
+.hp-sub         { font-size:14px; color:#5a6b7b; margin:4px 0 0; }
+.hp-deliver     { text-align:right; }
+.hp-deliver-lab { font-size:12px; color:#8a97a6; margin:0 0 2px; }
+.hp-deliver-val { font-size:20px; font-weight:bold; color:#2a5db0; margin:0; }
 
-/* schedule tables */
-.hp-table       { width: 100%; border-collapse: collapse; }
-.hp-table th    { text-align: left; color: #1c2b39; font-size: 12px; font-weight: bold; padding: 4px 8px; vertical-align: top; }
-.hp-table td    { padding: 4px 8px; }
-.hp-table .hp-rowlabel { color: #1c2b39; font-weight: bold; white-space: nowrap; }
-.hp-cell        { display: block; border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 5px 7px; min-width: 70px; min-height: 16px; }
+/* key-date metric cards */
+.hp-metrics     { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:20px 0; }
+.hp-metric      { background:#f5f7fa; border-radius:8px; padding:12px 16px; }
+.hp-metric-lab  { font-size:12px; color:#8a97a6; margin:0 0 2px; }
+.hp-metric-val  { font-size:18px; font-weight:bold; margin:0; min-height:21px; }
 
-.hp-notes       { width: 100%; min-height: 60px; border: 1px solid #c7ced6; border-radius: 2px; background: #fff; padding: 6px 8px; white-space: pre-wrap; }
-.hp-todo        { color: #b00020; }   /* highlights any ___placeholder left unreplaced */
+/* timeline rail */
+.hp-tl          { width:100%; height:auto; display:block; margin:0 0 4px; }
+
+/* label / value groups */
+.hp-grid        { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px 20px; padding:16px 0; }
+.hp-grid.divided{ border-top:1px solid #e3e8ef; border-bottom:1px solid #e3e8ef; }
+.hp-label       { font-size:12px; color:#8a97a6; margin:0 0 2px; }
+.hp-value       { font-size:14px; color:#1c2b39; margin:0; }
+.hp-email       { font-size:12px; color:#2a5db0; margin:2px 0 0; }
+
+/* schedule phase lists */
+.hp-sched       { padding-top:20px; }
+.hp-phase       { margin-bottom:14px; }
+.hp-chip        { display:inline-block; font-size:12px; padding:2px 10px; border-radius:8px; font-weight:bold; }
+.hp-chip-design   { background:#e6f1fb; color:#185fa5; }
+.hp-chip-mfg      { background:#faeeda; color:#854f0b; }
+.hp-chip-assembly { background:#eaf3de; color:#3b6d11; }
+.hp-chip-note   { font-size:12px; color:#8a97a6; margin-left:8px; }
+.hp-ms-grid     { display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px 16px; margin-top:10px; }
+.hp-ms-date     { font-size:14px; font-weight:bold; color:#1c2b39; min-height:17px; }
+.hp-ms-lab      { font-size:12px; color:#5a6b7b; margin-top:1px; }
+
+/* notes / FAT change reason */
+.hp-section2    { padding-top:16px; border-top:1px solid #e3e8ef; margin-top:16px; }
+.hp-notes       { font-size:14px; color:#1c2b39; white-space:pre-wrap; margin:6px 0 0; min-height:17px; }
+
+/* states */
+.hp-todo        { color:#b00020; }   /* field with no API name mapped yet */
+
+/* debug (delete with the HTML debug block before go-live) */
+.hp-debug       { margin-top:18px; border:1px solid #b00020; border-radius:8px; padding:12px 14px; }
+.hp-debug legend{ color:#b00020; font-size:12px; font-weight:bold; padding:0 6px; }
+.hp-dbg-log     { background:#0f1722; color:#cfe3ff; font-size:11px; padding:8px; border-radius:3px; max-height:240px; overflow:auto; white-space:pre-wrap; margin:8px 0 0; }

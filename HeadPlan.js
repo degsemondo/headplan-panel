@@ -1,19 +1,21 @@
 /* =====================================================================
-   HEAD PLAN — AdaptiveWork custom panel  ::  Script field
+   HEAD PLAN — AdaptiveWork custom panel  ::  Script field (overview redesign)
    Conventions from the RAID Overview / My Tasks builds:
    API.Context.getData() for Data, host auto-mapping, Session auth,
    WAF-safe (split SQL keywords + split 'htt'+'ps://').
 
-   Data flow (revised after $ParentProject returned empty):
-     1. Data field gives { sessionId, self:{id,EntityType,SYSID,Project} }
-     2. derive projectId  = self.Project.id  (or self.id if the panel is
-        already on the project)
-     3. GET /data/objects/<id>?fields=...  to fetch the project
-        (CZQL won't filter reliably on id; the objects API fetches by id)
-     4. populate [data-f] spans, then look up each .hp-date by External ID
+   Data flow:
+     1. Data field gives { sessionId, self:{SYSID,Project} }.
+     2. projectId = self.Project (Project/Task/Milestone all carry it).
+     3. GET /data/objects/<id>?fields=...  to fetch the project.
+     4. populate [data-f] spans (refs -> resolve Name via objects API),
+        look up each .hp-date by External ID via CZQL (date field per cell:
+        data-datefield = DueDate | StartDate; duplicate queries are cached),
+        then draw the timeline rail (#hp-tl) from cells with data-phase.
    ===================================================================== */
 var API_QUERY = '/V2.0/services/data/query';
 var SEL = 'SEL' + 'ECT', FRM = 'FR' + 'OM', WHR = 'WHE' + 'RE';
+var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 /* project fields to read (display + the two needed for the External ID) */
 var PROJECT_FIELDS = 'C_ProductGESE,Country,C_BaiumCategory,C_OrderNumber,C_Customer,' +
@@ -22,6 +24,13 @@ var PROJECT_FIELDS = 'C_ProductGESE,Country,C_BaiumCategory,C_OrderNumber,C_Cust
 /* fallback drops only the deep .Email traversal, keeps every display field */
 var PROJECT_FIELDS_MIN = 'C_ProductGESE,Country,C_BaiumCategory,C_OrderNumber,C_Customer,' +
   'C_ProjectManager,C_ProcessEngineer,C_ElectricalEngineer,C_ControlEngineer,C_SAPProjectID,SYSID';
+
+/* timeline phase tracks (order, colour, label colour, y-row) */
+var PHASES = [
+  { k: 'design',   y: 44,  dot: '#378ADD', label: 'Design',   lc: '#185fa5' },
+  { k: 'mfg',      y: 74,  dot: '#EF9F27', label: 'Mfg',      lc: '#854f0b' },
+  { k: 'assembly', y: 104, dot: '#1D9E75', label: 'Assembly', lc: '#0f6e56' }
+];
 
 /* ---------- debug ---------- */
 function dbg(label, value) {
@@ -42,7 +51,7 @@ function getPath(obj, path) {
   for (var i = 0; i < parts.length; i++) { if (cur == null) return ''; cur = cur[parts[i]]; }
   return (cur == null) ? '' : cur;
 }
-function fmtDate(v) { if (!v) return '—'; var s = String(v); return s.length >= 10 ? s.substring(0, 10) : s; }   /* ISO -> yyyy-MM-dd */
+function fmtDate(v) { if (!v) return ''; var s = String(v); return s.length >= 10 ? s.substring(0, 10) : s; }   /* ISO -> yyyy-MM-dd */
 
 function readJson(r, label, extra) {
   return r.text().then(function (txt) {
@@ -60,7 +69,7 @@ function getContext() {
   var host = W.location.hostname, apiHost = host;
   var m = [['app2.', 'api2.'], ['app.', 'api.'], ['eu1.', 'apie1.'], ['eu.', 'apie.']];
   for (var i = 0; i < m.length; i++) { if (host.indexOf(m[i][0]) === 0) { apiHost = m[i][1] + host.slice(m[i][0].length); break; } }
-  return { sid: ctx.sessionId, base: 'htt' + 'ps://' + apiHost, self: ctx.self || {}, project: {} };
+  return { sid: ctx.sessionId, base: 'htt' + 'ps://' + apiHost, self: ctx.self || {}, project: {}, dateCache: {} };
 }
 
 function czql(base, sid, query) {
@@ -103,27 +112,81 @@ function buildExternalId(ctx, code) {
   var sys = String(getPath(ctx.project, 'SYSID') || '').trim();   /* project's SYSID only — never self's */
   return sap ? (sap + '_' + code) : (sys + ':' + code);     /* SAP -> '<sap>_<code>' ; else '<sysid>:<code>' */
 }
+/* one network call per (field, externalId); shared across duplicate cells */
+function queryDate(ctx, field, extId) {
+  var key = field + '|' + extId;
+  if (!ctx.dateCache[key]) {
+    var q = SEL + " " + field + " " + FRM + " WorkItem " + WHR + " ExternalID = '" + extId + "'";
+    ctx.dateCache[key] = czql(ctx.base, ctx.sid, q).then(function (rows) {
+      return rows.length ? (rows[0][field] || null) : null;
+    });
+  }
+  return ctx.dateCache[key];
+}
 function loadDate(ctx, cell, code) {
-  var field = cell.getAttribute('data-datefield') || 'DueDate';   /* per cell: DueDate (finish) or StartDate */
+  var field = cell.getAttribute('data-datefield') || 'DueDate';
   var extId = buildExternalId(ctx, code);
   cell.setAttribute('data-extid', extId);
   cell.textContent = '…';
-  var q = SEL + " " + field + " " + FRM + " WorkItem " + WHR + " ExternalID = '" + extId + "'";
-  return czql(ctx.base, ctx.sid, q).then(function (rows) {
-    dbg('[' + code + '] rows', rows.length);
-    if (!rows.length) { cell.textContent = ''; return; }   /* nothing found -> leave blank */
-    var val = rows[0][field];
-    dbg('[' + code + '] ' + field, val);
+  return queryDate(ctx, field, extId).then(function (val) {
+    if (!val) { cell.textContent = ''; cell.removeAttribute('data-date'); return; }   /* nothing found -> blank */
+    cell.setAttribute('data-date', val);
     cell.textContent = fmtDate(val);
   }).catch(function (err) { cell.textContent = 'ERR'; dbg('[' + code + '] ERROR', err.message || err); });
 }
 function loadAllDates(ctx) {
-  var cells = document.querySelectorAll('.hp-date');
+  var cells = document.querySelectorAll('.hp-date'), ps = [];
   for (var i = 0; i < cells.length; i++) {
     var cell = cells[i], code = (cell.getAttribute('data-code') || '').trim();
-    if (!code) { cell.textContent = ''; continue; }   /* no code mapped yet -> leave blank */
-    loadDate(ctx, cell, code);
+    if (!code) { cell.textContent = ''; continue; }   /* no code mapped yet -> blank */
+    ps.push(loadDate(ctx, cell, code));
   }
+  return Promise.all(ps);
+}
+
+/* ---------- timeline rail: positions dated milestones on a month axis ---------- */
+function buildTimeline() {
+  var svg = document.getElementById('hp-tl'); if (!svg) return;
+  var cells = document.querySelectorAll('.hp-date[data-phase]'), items = [];
+  for (var i = 0; i < cells.length; i++) {
+    var d = cells[i].getAttribute('data-date'); if (!d) continue;
+    var t = Date.parse(d); if (isNaN(t)) continue;
+    items.push({ phase: cells[i].getAttribute('data-phase'), t: t });
+  }
+  if (!items.length) { svg.innerHTML = ''; return; }
+
+  var today = Date.now(), times = items.map(function (x) { return x.t; });
+  var minT = Math.min.apply(null, times.concat([today]));
+  var maxT = Math.max.apply(null, times.concat([today]));
+  if (maxT === minT) { maxT = minT + 2592000000; }   /* +30d so a single point still renders */
+  var PX0 = 78, PX1 = 628, W = PX1 - PX0;
+  function px(t) { return PX0 + (t - minT) / (maxT - minT) * W; }
+
+  var s = '';
+  /* month gridlines + labels */
+  var dt = new Date(minT); dt.setDate(1); dt.setHours(0, 0, 0, 0); dt.setMonth(dt.getMonth() + 1);
+  while (dt.getTime() < maxT) {
+    var tx = px(dt.getTime()).toFixed(1);
+    s += '<line x1="' + tx + '" y1="26" x2="' + tx + '" y2="118" style="stroke:#e3e8ef"/>';
+    s += '<text x="' + tx + '" y="18" text-anchor="middle" style="fill:#8a97a6;font-size:11px;">' + MON[dt.getMonth()] + '</text>';
+    dt.setMonth(dt.getMonth() + 1);
+  }
+  /* today marker */
+  var tdx = px(today).toFixed(1);
+  s += '<line x1="' + tdx + '" y1="26" x2="' + tdx + '" y2="129" style="stroke:#8a97a6;stroke-dasharray:3 3"/>';
+  s += '<text x="' + tdx + '" y="136" text-anchor="middle" style="fill:#8a97a6;font-size:10px;">today</text>';
+  /* phase tracks */
+  for (var p = 0; p < PHASES.length; p++) {
+    var ph = PHASES[p], xs = [], dots = '';
+    for (var k = 0; k < items.length; k++) {
+      if (items[k].phase === ph.k) { var x = px(items[k].t); xs.push(x); dots += '<circle cx="' + x.toFixed(1) + '" cy="' + ph.y + '" r="4.5" fill="' + ph.dot + '"/>'; }
+    }
+    s += '<text x="8" y="' + (ph.y + 3) + '" style="fill:' + ph.lc + ';font-size:11px;">' + ph.label + '</text>';
+    s += '<line x1="78" y1="' + ph.y + '" x2="628" y2="' + ph.y + '" style="stroke:#e3e8ef"/>';
+    if (xs.length > 1) { var mn = Math.min.apply(null, xs), mx = Math.max.apply(null, xs); s += '<line x1="' + mn.toFixed(1) + '" y1="' + ph.y + '" x2="' + mx.toFixed(1) + '" y2="' + ph.y + '" style="stroke:' + ph.dot + ';stroke-width:2"/>'; }
+    s += dots;
+  }
+  svg.innerHTML = s;
 }
 
 /* ---------- 3. debug box wiring ---------- */
@@ -159,7 +222,7 @@ function render(ctx, project) {
   dbg('C_SAPProjectID', getPath(project, 'C_SAPProjectID') || '(blank)');
   dbg('SYSID', getPath(project, 'SYSID') || '(blank)');
   populateProject(ctx);
-  loadAllDates(ctx);
+  loadAllDates(ctx).then(function () { buildTimeline(); });
   wireDebug(ctx);
 }
 function loadProject(ctx, projectId) {
