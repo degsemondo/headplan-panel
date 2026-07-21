@@ -20,10 +20,10 @@ var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
 /* project fields to read (display + the two needed for the External ID) */
 var PROJECT_FIELDS = 'C_ProductGESE,Country,C_BaiumCategory,C_EquipmentId,C_Customer,' +
   'C_ProjectManager,C_ProjectManager.Email,C_ProcessEngineer,C_ElectricalEngineer,' +
-  'C_ControlEngineer,C_SAPProjectID,SYSID';
+  'C_ControlEngineer,C_MechanicalEngineer,C_SAPProjectID,SYSID';
 /* fallback drops only the deep .Email traversal, keeps every display field */
 var PROJECT_FIELDS_MIN = 'C_ProductGESE,Country,C_BaiumCategory,C_EquipmentId,C_Customer,' +
-  'C_ProjectManager,C_ProcessEngineer,C_ElectricalEngineer,C_ControlEngineer,C_SAPProjectID,SYSID';
+  'C_ProjectManager,C_ProcessEngineer,C_ElectricalEngineer,C_ControlEngineer,C_MechanicalEngineer,C_SAPProjectID,SYSID';
 
 /* timeline phase tracks (order, colour, label colour, y-row) */
 var PHASES = [
