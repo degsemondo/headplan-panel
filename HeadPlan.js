@@ -9,21 +9,26 @@
      2. projectId = self.Project (Project/Task/Milestone all carry it).
      3. GET /data/objects/<id>?fields=...  to fetch the project.
      4. populate [data-f] spans (refs -> resolve Name via objects API),
-        look up each .hp-date by External ID via CZQL (date field per cell:
-        data-datefield = DueDate | StartDate; duplicate queries are cached),
-        then draw the timeline rail (#hp-tl) from cells with data-phase.
+        look up each .hp-date by External ID via CZQL. Per cell:
+          data-datefield = C_SAPEndDate | DueDate | StartDate  -> date (yyyy-MM-dd)
+                         = C_SAPDueDateVariance                 -> {value:hours}/8 -> "(Nd)"
+                           (negative = Planview later than SAP -> row flagged red)
+        duplicate (field,extId) queries are cached; cells with data-phase feed
+        the timeline rail (#hp-tl).
    ===================================================================== */
 var API_QUERY = '/V2.0/services/data/query';
 var SEL = 'SEL' + 'ECT', FRM = 'FR' + 'OM', WHR = 'WHE' + 'RE';
 var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-/* project fields to read (display + the two needed for the External ID) */
-var PROJECT_FIELDS = 'C_ProductGESE,Country,C_BaiumCategory,C_EquipmentId,C_Customer,' +
+/* project fields to read (every data-f in the HTML + SYSID / C_SAPProjectID for the External ID) */
+var PROJECT_FIELDS = 'C_ProductGESE,C_Customer,C_BaiumCategory,C_SAPProjectID,C_SAPProjectID2,' +
+  'C_ItemNumber,C_MekSMST,C_Country,C_ProductionLine,' +
   'C_ProjectManager,C_ProjectManager.Email,C_ProcessEngineer,C_ElectricalEngineer,' +
-  'C_ControlEngineer,C_MechanicalEngineer,C_SAPProjectID,SYSID';
+  'C_ControlEngineer,C_MechanicalEngineer,SYSID';
 /* fallback drops only the deep .Email traversal, keeps every display field */
-var PROJECT_FIELDS_MIN = 'C_ProductGESE,Country,C_BaiumCategory,C_EquipmentId,C_Customer,' +
-  'C_ProjectManager,C_ProcessEngineer,C_ElectricalEngineer,C_ControlEngineer,C_MechanicalEngineer,C_SAPProjectID,SYSID';
+var PROJECT_FIELDS_MIN = 'C_ProductGESE,C_Customer,C_BaiumCategory,C_SAPProjectID,C_SAPProjectID2,' +
+  'C_ItemNumber,C_MekSMST,C_Country,C_ProductionLine,' +
+  'C_ProjectManager,C_ProcessEngineer,C_ElectricalEngineer,C_ControlEngineer,C_MechanicalEngineer,SYSID';
 
 /* timeline phase tracks (order, colour, label colour, y-row) */
 var PHASES = [
@@ -123,23 +128,60 @@ function queryDate(ctx, field, extId) {
   }
   return ctx.dateCache[key];
 }
+
+/* write one resolved value into a cell: dates -> yyyy-MM-dd, variance -> "(Nd)" + late flag */
+function applyVal(cell, field, val) {
+  cell.setAttribute('data-date', val);
+  if (field.indexOf('Variance') > -1) {
+    if (val && typeof val === 'object' && val.value !== undefined) {
+      var days = Math.round(val.value / 8);                 /* SAP stores variance in hours; /8 -> working days */
+      cell.textContent = '(' + days + 'd)';
+      if (days < 0) {                                       /* Planview later than SAP -> flag red */
+        var planRef = cell.parentNode;  if (planRef) planRef.classList.add('hp-plan-late');
+        var ms = planRef ? planRef.parentNode : null;  if (ms) ms.classList.add('hp-ms-late');
+      }
+    } else {
+      cell.textContent = JSON.stringify(val);
+    }
+  } else {
+    cell.textContent = fmtDate(val);
+  }
+}
+
 function loadDate(ctx, cell, code) {
   var field = cell.getAttribute('data-datefield') || 'DueDate';
   var extId = buildExternalId(ctx, code);
   cell.setAttribute('data-extid', extId);
   cell.textContent = '…';
   return queryDate(ctx, field, extId).then(function (val) {
-    if (!val) { cell.textContent = ''; cell.removeAttribute('data-date'); return; }   /* nothing found -> blank */
-    cell.setAttribute('data-date', val);
-    cell.textContent = fmtDate(val);
+    if (!val) { cell.textContent = ''; cell.removeAttribute('data-date'); return; }
+    applyVal(cell, field, val);
   }).catch(function (err) { cell.textContent = 'ERR'; dbg('[' + code + '] ERROR', err.message || err); });
 }
+
+/* data-code="a,b" -> try each in order, use the first that returns a value */
+function loadDateMulti(ctx, cell, codes) {
+  var field = cell.getAttribute('data-datefield') || 'DueDate';
+  function tryCode(idx) {
+    if (idx >= codes.length) { cell.textContent = ''; cell.removeAttribute('data-date'); return Promise.resolve(); }
+    var extId = buildExternalId(ctx, codes[idx].trim());
+    cell.setAttribute('data-extid', extId);
+    return queryDate(ctx, field, extId).then(function (val) {
+      if (val) { applyVal(cell, field, val); return; }
+      return tryCode(idx + 1);
+    });
+  }
+  cell.textContent = '…';
+  return tryCode(0).catch(function (err) { cell.textContent = 'ERR'; dbg('[' + codes.join('/') + '] ERROR', err.message || err); });
+}
+
 function loadAllDates(ctx) {
   var cells = document.querySelectorAll('.hp-date'), ps = [];
   for (var i = 0; i < cells.length; i++) {
-    var cell = cells[i], code = (cell.getAttribute('data-code') || '').trim();
-    if (!code) { cell.textContent = ''; continue; }   /* no code mapped yet -> blank */
-    ps.push(loadDate(ctx, cell, code));
+    var cell = cells[i], codeAttr = (cell.getAttribute('data-code') || '').trim();
+    if (!codeAttr) { cell.textContent = ''; continue; }
+    if (codeAttr.indexOf(',') > -1) { ps.push(loadDateMulti(ctx, cell, codeAttr.split(','))); }
+    else { ps.push(loadDate(ctx, cell, codeAttr)); }
   }
   return Promise.all(ps);
 }
@@ -223,14 +265,14 @@ function wireExport() { var b = document.getElementById('hp-export'); if (b) b.a
 function wireDebug(ctx) {
   var input = document.getElementById('hp-dbg-extid');
   var btn = document.getElementById('hp-dbg-run');
-  if (input) input.value = buildExternalId(ctx, '1365');   /* PV Design */
+  if (input) input.value = buildExternalId(ctx, '0210');   /* PV design */
   if (btn) btn.addEventListener('click', function () {
     var box = document.getElementById('hp-dbg-log'); if (box) box.textContent = '';
     var extId = input ? input.value : '';
-    var q = SEL + " DueDate " + FRM + " WorkItem " + WHR + " ExternalID = '" + extId + "'";
+    var q = SEL + " C_SAPEndDate, DueDate " + FRM + " WorkItem " + WHR + " ExternalID = '" + extId + "'";
     czql(ctx.base, ctx.sid, q).then(function (rows) {
       dbg('manual rows', rows.length);
-      if (rows.length) dbg('manual DueDate', rows[0].DueDate || rows[0].dueDate);
+      if (rows.length) dbg('manual row', rows[0]);
     }).catch(function (e) { dbg('manual ERROR', e.message || e); });
   });
 }
@@ -250,6 +292,7 @@ function render(ctx, project) {
   ctx.project = project;
   dbg('project keys', Object.keys(project));
   dbg('C_SAPProjectID', getPath(project, 'C_SAPProjectID') || '(blank)');
+  dbg('C_SAPProjectID2', getPath(project, 'C_SAPProjectID2') || '(blank)');
   dbg('SYSID', getPath(project, 'SYSID') || '(blank)');
   populateProject(ctx);
   loadAllDates(ctx).then(function () { buildTimeline(); });
