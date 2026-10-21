@@ -1,12 +1,3 @@
-<!--
-  HEAD PLAN — AdaptiveWork custom panel (Work Items)  ::  HTML field (overview redesign)
-  STATIC markup only. Script reads the Data (JSON) field via window.API.Context.getData():
-    - [data-f="ApiName"]   -> project field value (refs rendered as .Name)
-    - .hp-date[data-code]  -> WorkItem date via External ID lookup
-                              (data-datefield = C_SAPEndDate | DueDate | C_SAPDueDateVariance | StartDate)
-                              cells with data-phase feed the timeline rail (#hp-tl).
-  Each schedule milestone shows the SAP end date (headline) + a Planview line (DueDate + variance).
--->
 <div class="hp-wrap">
 
   <!-- ============ TOOLBAR (hidden when printing) ============ -->
@@ -62,103 +53,301 @@
   <!-- ============ SCHEDULE ============ -->
   <div class="hp-sched">
 
-    <!-- Design -->
     <div class="hp-phase">
-      <span class="hp-chip hp-chip-design">Design</span><span class="hp-chip-note">planned finishing date</span>
-      <div class="hp-ms-grid">
+      <span class="hp-chip hp-chip-design">Design </span><span class="hp-chip-note">planned finishing date</span>
+     <!--/Robert test-->
 
-        <div>
-          <div class="hp-ms-lab">PV design</div>
-          <div class="hp-ms-date hp-date" data-code="0210" data-datefield="C_SAPEndDate" data-phase="design" data-label="PV design"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0210" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0210" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
+<div class="hp-ms-grid">
 
-        <div>
-          <div class="hp-ms-lab">Process</div>
-          <div class="hp-ms-date hp-date" data-code="0240" data-datefield="C_SAPEndDate" data-phase="design" data-label="Process"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0240" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0240" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
+  <!-- PV Design -->
+  <div>
+    <div class="hp-ms-lab">PV design</div>
 
-        <div>
-          <div class="hp-ms-lab">Electrical</div>
-          <div class="hp-ms-date hp-date" data-code="0250" data-datefield="C_SAPEndDate" data-phase="design" data-label="Electrical"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0250" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0250" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">Program</div>
-          <div class="hp-ms-date hp-date" data-code="0260" data-datefield="C_SAPEndDate" data-phase="design" data-label="Program"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0260" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0260" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-      </div>
+    <div class="hp-ms-date hp-date"
+         data-code="0210"
+         data-datefield="C_SAPEndDate"
+         data-phase="design"
+         data-label="PV design">
     </div>
 
-    <!-- Pressure Vessel manufacturing -->
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0210"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0210"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+  <!-- Process -->
+  <div>
+    <div class="hp-ms-lab">Process</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0240"
+         data-datefield="C_SAPEndDate"
+         data-phase="design"
+         data-label="Process">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0240"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0240"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+  <!-- Electrical -->
+ <div>
+    <div class="hp-ms-lab">Electrical</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0250"
+         data-datefield="C_SAPEndDate"
+         data-phase="design"
+         data-label="Electrical">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0250"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0250"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+  <!-- Program -->
+ <div>
+    <div class="hp-ms-lab">Program</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0260"
+         data-datefield="C_SAPEndDate"
+         data-phase="design"
+         data-label="Program">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0260"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0260"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+</div>
+</div>
+
+
     <div class="hp-phase">
-      <span class="hp-chip hp-chip-mfg">Pressure Vessel manufacturing</span><span class="hp-chip-note">starting date</span>
+      <span class="hp-chip hp-chip-mfg">Pressure Vessel manufacturing </span><span class="hp-chip-note">starting date</span>
       <div class="hp-ms-grid">
 
-        <div>
-          <div class="hp-ms-lab">PV manufacturing</div>
-          <div class="hp-ms-date hp-date" data-code="0310" data-datefield="C_SAPEndDate" data-phase="mfg" data-label="PV manufacturing"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0310" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0310" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
+ <div>
+    <div class="hp-ms-lab">PV manufacturing</div>
 
-      </div>
+    <div class="hp-ms-date hp-date"
+         data-code="0310"
+         data-datefield="C_SAPEndDate"
+         data-phase="mfg"
+         data-label="PV manufacturing">
     </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0310"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0310"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
 
-    <!-- Assembly -->
+</div>
+</div>
+
     <div class="hp-phase">
       <span class="hp-chip hp-chip-assembly">Assembly</span><span class="hp-chip-note">starting date</span>
-      <div class="hp-ms-grid">
+     <div class="hp-ms-grid">
 
-        <div>
-          <div class="hp-ms-lab">Mech assembly</div>
-          <div class="hp-ms-date hp-date" data-code="0420" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="Mech assembly"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0420" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="1420" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
+ <div>
+    <div class="hp-ms-lab">Mech assembly</div>
 
-        <div>
-          <div class="hp-ms-lab">Electrical</div>
-          <div class="hp-ms-date hp-date" data-code="0410" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="Electrical assembly"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0410" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0410" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">QC Testing</div>
-          <div class="hp-ms-date hp-date" data-code="0510" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="Testing"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0510" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0510" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">PreQ</div>
-          <div class="hp-ms-date hp-date" data-code="0511" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="PreQ"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0511" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0511" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">FAT</div>
-          <div class="hp-ms-date hp-date" data-code="0520" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="FAT"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0520" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0520" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">Unit ready</div>
-          <div class="hp-ms-date hp-date" data-code="0620" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="Unit ready"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0620" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0620" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-        <div>
-          <div class="hp-ms-lab">Ready for shipment</div>
-          <div class="hp-ms-date hp-date" data-code="0630" data-datefield="C_SAPEndDate" data-phase="assembly" data-label="Ready for shipment"></div>
-          <div class="hp-plan-ref">Planview: <span class="hp-plan-date hp-date" data-code="0630" data-datefield="DueDate"></span> <span class="hp-variance hp-date" data-code="0630" data-datefield="C_SAPDueDateVariance"></span></div>
-        </div>
-
-      </div>
+    <div class="hp-ms-date hp-date"
+         data-code="0420"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="Mech assembly">
     </div>
-
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0420"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="1420"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
   </div>
+
+
+ <div>
+    <div class="hp-ms-lab">Electrical</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0410"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="Electrical assembly">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0410"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0410"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+ <div>
+    <div class="hp-ms-lab">QC Testing</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0510"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="Testing">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0510"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0510"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+
+ <div>
+    <div class="hp-ms-lab">PreQ</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0511"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="PreQ">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0511"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0511"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+ <div>
+    <div class="hp-ms-lab">FAT</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0520"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="FAT">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0520"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0520"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+
+ <div>
+    <div class="hp-ms-lab">Unit ready</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0620"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="Unit ready">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0620"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0620"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+
+ <div>
+    <div class="hp-ms-lab">Ready for shipment</div>
+
+    <div class="hp-ms-date hp-date"
+         data-code="0630"
+         data-datefield="C_SAPEndDate"
+         data-phase="assembly"
+         data-label="Ready for shipment">
+    </div>
+    <div class="hp-plan-ref">
+      Planview:
+      <span class="hp-plan-date hp-date"
+            data-code="0630"
+            data-datefield="DueDate">
+      </span>
+      <span class="hp-variance hp-date"
+            data-code="0630"
+            data-datefield="C_SAPDueDateVariance">;
+            </span>
+    </div>
+  </div>
+
+</div>
+
 
   <!-- ============ NOTES ============ -->
   <div class="hp-section2">
@@ -171,7 +360,7 @@
     <legend>Debug &mdash; remove before go-live</legend>
     <div class="hp-grid" style="padding:0;">
       <div>
-        <p class="hp-label">External ID to test (pre-filled with the computed PV design value)</p>
+        <p class="hp-label">External ID to test (pre-filled with the computed PV Design value)</p>
         <input id="hp-dbg-extid" type="text" style="width:100%; padding:5px 7px; border:1px solid #c7ced6; border-radius:3px;" />
       </div>
       <div style="align-self:end;">
@@ -181,5 +370,6 @@
     <p class="hp-label" style="margin-top:8px;">Log (also written to browser console as [HeadPlan] &hellip;)</p>
     <pre id="hp-dbg-log" class="hp-dbg-log"></pre>
   </fieldset>
+
 
 </div>
